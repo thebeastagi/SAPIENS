@@ -42,7 +42,8 @@ src/sapiens/
   queue.py        bounded SQLite job queue with leases and idempotency
   daemon.py       preemptible background worker skeleton
   cli.py          synthetic-only demo entrypoint
-  adapters/       two deterministic synthetic adapters (linear, threshold)
+  adapters/       three deterministic synthetic adapters (linear, threshold,
+                  periodic-signal photometry)
 ```
 
 Key design rules (enforced by tests in [`tests/`](tests/)):
@@ -86,26 +87,48 @@ python -m pip install -e ".[dev]"
 ruff check src tests
 pytest
 
-# synthetic end-to-end demo
+# synthetic end-to-end demo (the installed `sapiens` command is equivalent)
 python -m sapiens.cli
+
+# optionally keep the generated evidence ledger for inspection
+python -m sapiens.cli --workdir .sapiens-demo
 ```
 
-The CLI runs the two synthetic adapters through the kernel, exercises a
-cross-domain transfer, and prints a JSON report that includes:
+The CLI proposes deterministic synthetic candidates in the kinematics and
+periodic-signal photometry domains, validates them to L2, and transfers their
+structures into the synthetic ecology domain. Both transfers reset to L0. It
+then verifies the combined hash chain and prints a report like:
 
 ```json
 {
   "experimental": true,
+  "ledger_verified": true,
+  "photometry": {
+    "domain": "synthetic-photometry",
+    "level": "L2",
+    "transfer": {"level": "L0", "target_domain": "synthetic-ecology"}
+  },
   "scientific_discoveries_claimed": 0,
-  "transfer": {"level": "L0"}
+  "source": {"domain": "synthetic-kinematics", "level": "L2"},
+  "transfer": {"level": "L0", "target_domain": "synthetic-ecology"}
 }
 ```
 
+When `--workdir` is supplied, the append-only ledger is written to
+`.sapiens-demo/evidence.jsonl` (or the directory you choose). The photometry
+adapter scores candidate periods against a seeded noisy sinusoid; its tests
+cover both the true period and a deliberately incorrect period. This is a
+deterministic pipeline fixture, **not analysis of telescope data or an
+astrophysical result**.
+
 ## Status & roadmap
 
-**Phase 0 — done** (this repo): clean-room foundation, synthetic-only
-orchestration, hash-chained ledger, kernel gates, bridge, bounded
-queue/daemon, tests + CI (Python 3.10/3.11/3.12).
+**Phase 0 — shipped** (current package version `0.1.0`): clean-room foundation,
+three deterministic synthetic adapters, synthetic-only orchestration,
+hash-chained ledger, kernel gates, bridge, bounded queue/daemon, and CI on
+Python 3.10/3.11/3.12. The test suite currently includes positive and negative
+period-detection fixtures, L0 reset/provenance checks, ledger tamper checks,
+promotion guards, and bounded queue/daemon behavior.
 
 Next, in order (see [`ROADMAP.md`](ROADMAP.md)):
 
