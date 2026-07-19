@@ -1,0 +1,57 @@
+name: deploy-site
+
+# CD: publish the LEDGER demo site (demos/ledger-grok/site/) to the gh-pages
+# branch on every merge/push to main. Replaces the previous manual
+# orphan-branch process. GitHub Pages serves gh-pages at the repository root,
+# so the site directory contents are placed at the branch root verbatim.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gh-pages-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publish demos/ledger-grok/site to gh-pages
+        env:
+          SITE: demos/ledger-grok/site
+        run: |
+          set -euo pipefail
+          test -f "$SITE/index.html"
+
+          STAGE="$(mktemp -d)"
+          cp -r "$SITE"/. "$STAGE"/
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin gh-pages || true
+
+          git switch --orphan gh-pages-deploy
+          git rm -rf . 2>/dev/null || true
+          cp -r "$STAGE"/. .
+          git add -A
+          git commit -m "deploy: gh-pages from main@${GITHUB_SHA:0:12}"
+
+          if git rev-parse --verify -q origin/gh-pages >/dev/null \
+             && [ "$(git rev-parse 'HEAD^{tree}')" = "$(git rev-parse 'origin/gh-pages^{tree}')" ]; then
+            echo "Site content unchanged vs gh-pages — nothing to deploy."
+            exit 0
+          fi
+          git push --force origin HEAD:gh-pages
+          echo "Deployed $SITE to gh-pages."
+
+      - name: Verify deployed branch
+        run: |
+          git fetch origin gh-pages
+          git ls-tree --name-only origin/gh-pages
