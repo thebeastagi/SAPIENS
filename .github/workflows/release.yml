@@ -1,0 +1,58 @@
+name: release
+
+# Tagged-release CD: on any v* tag, verify the ledger, package the LEDGER
+# demo artifacts (source, data, committed outputs, site, tests, tools, docs)
+# into tar.gz + zip with SHA256SUMS, and create a GitHub Release.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify ledger before packaging
+        run: python3 demos/ledger-grok/verify_ledger.py --quiet
+
+      - name: Package demo artifacts + SHA256SUMS
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          PKG="sapiens-ledger-grok-demo-${TAG}"
+          mkdir -p "dist/${PKG}"
+          cp -r \
+            demos/ledger-grok/src \
+            demos/ledger-grok/data \
+            demos/ledger-grok/out \
+            demos/ledger-grok/site \
+            demos/ledger-grok/tests \
+            demos/ledger-grok/tools \
+            demos/ledger-grok/README.md \
+            demos/ledger-grok/run_demo.py \
+            demos/ledger-grok/verify_ledger.py \
+            "dist/${PKG}/"
+          cp MCP-INTEGRATION.md "dist/${PKG}/"
+          (cd dist && tar -czf "${PKG}.tar.gz" "${PKG}" && zip -qr "${PKG}.zip" "${PKG}")
+          rm -rf "dist/${PKG}"
+          (cd dist && sha256sum *.tar.gz *.zip > SHA256SUMS)
+          ls -la dist
+          cat dist/SHA256SUMS
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >-
+          gh release create "${GITHUB_REF_NAME}"
+          dist/*
+          --title "${GITHUB_REF_NAME}"
+          --generate-notes
