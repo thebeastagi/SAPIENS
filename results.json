@@ -1,0 +1,153 @@
+{
+  "demo": "SAPIENS x Grok LEDGER demo \u2014 Kepler-10 b rediscovery (validation, not a discovery)",
+  "generated_utc": "2026-07-19T13:12:18.019Z",
+  "adapter_mode": "mock",
+  "adapter": "grok-mock (deterministic offline stand-in)",
+  "data": {
+    "file": "kepler10_kic11904151_q1_lc.csv",
+    "sha256": "1d82ef8ced447bb44ac80c7389a8ef3dde93bf1983d619d56fe2f6cda3a56ded",
+    "rows": 1416,
+    "span_days": 33.471,
+    "t_start_bkjd": 131.512315,
+    "t_end_bkjd": 164.983391
+  },
+  "hypothesis": {
+    "adapter": "mock",
+    "hypothesis_id": "mock-hyp-82bf1d5a",
+    "text": "The light curve contains a repeating, shallow, box-like dimming: a planetary-transit candidate. Expect a short period, a depth of tens-to-hundreds of ppm, and a duration of a few hours.",
+    "predicted_period_range_days": [
+      0.5,
+      10.0
+    ],
+    "predicted_depth_ppm_range": [
+      20,
+      2000
+    ],
+    "predicted_duration_hours_range": [
+      0.5,
+      8.0
+    ],
+    "shape": "box (flat-bottomed transit)",
+    "rationale": "Deterministic mock prior derived from dataset summary statistics (rows=1416, span_days=33.47); a live Grok adapter would reason over the same context."
+  },
+  "analysis": {
+    "method": "running-median detrend + box-least-squares grid search (simplified Kovacs et al. 2002), pure stdlib",
+    "grid": {
+      "pmin": 0.5,
+      "pmax": 10.0,
+      "nfreq": 6000,
+      "durations": [
+        0.03,
+        0.05,
+        0.07,
+        0.09,
+        0.11
+      ],
+      "refined": true
+    },
+    "period_days": 0.8373346,
+    "bls_power": 3.127157961690592e-06,
+    "bls_power_scaled_1e12": 3127157.962,
+    "duration_fraction_q": 0.08969,
+    "phase_center": 0.141036,
+    "depth_ppm": 158.32,
+    "snr": 33.95,
+    "n_transits": 40,
+    "epoch_bkjd": 131.579626,
+    "std_out_ppm": 52.35
+  },
+  "challenge": {
+    "adapter": "mock",
+    "challenges": [
+      {
+        "id": "harmonic_confusion",
+        "question": "Is the detected period the true period or a harmonic? Compare box power at P/2, P and 2P.",
+        "severity": "high",
+        "suggested_check": "harmonic_powers"
+      },
+      {
+        "id": "odd_even_depth",
+        "question": "Do odd- and even-numbered transits differ in depth? A significant difference flags an eclipsing binary whose true period is 2P.",
+        "severity": "high",
+        "suggested_check": "odd_even_fold"
+      },
+      {
+        "id": "secondary_eclipse",
+        "question": "Is there a secondary dip near phase 0.5? A deep secondary flags a self-luminous companion rather than a planet.",
+        "severity": "medium",
+        "suggested_check": "secondary_fold"
+      }
+    ],
+    "overall_skepticism": "Deterministic mock challenge set (standard false-positive screen for transit candidates); not a live model output."
+  },
+  "challenge_response": {
+    "harmonic_confusion": {
+      "powers": {
+        "half": {
+          "period_days": 0.4186673,
+          "power_scaled_1e12": 1378510.76
+        },
+        "fundamental": {
+          "period_days": 0.8373346,
+          "power_scaled_1e12": 3127157.962
+        },
+        "double": {
+          "period_days": 1.6746692,
+          "power_scaled_1e12": 1608656.164
+        }
+      },
+      "interpretation": "power at 2P is expected to stay high (transits coincide modulo 2P); the informative comparison is P vs P/2, where transits split into two boxes",
+      "pass": true
+    },
+    "odd_even_depth": {
+      "depth_even_ppm": 156.23,
+      "depth_odd_ppm": 160.16,
+      "delta_sigma": 0.421,
+      "pass": true
+    },
+    "secondary_eclipse": {
+      "depth_ppm": 2.3,
+      "sigma": 0.494,
+      "pass": true
+    }
+  },
+  "verdict": {
+    "claim": "validation \u2014 re-derivation of a published result; NOT a new discovery",
+    "target": "Kepler-10 b",
+    "match": true,
+    "checks": {
+      "period_match": true,
+      "epoch_match": true,
+      "depth_consistent": true,
+      "adversarial_clean": true
+    },
+    "measured": {
+      "period_days": 0.8373346,
+      "epoch_bkjd": 131.579626,
+      "depth_ppm": 158.32,
+      "snr": 33.95,
+      "n_transits": 40
+    },
+    "published": {
+      "name": "Kepler-10 b",
+      "source": "NASA Exoplanet Archive Planetary Systems (ps) table via TAP (pl_orbper/pl_tranmid/pl_trandep/pl_trandur), retrieved 2026-07-19",
+      "period_days": 0.8374912,
+      "epoch_bjd": 2454964.574756,
+      "depth_ppm": 191.0,
+      "duration_hours": 1.8076
+    },
+    "deltas": {
+      "period_days": 0.0001566011501311637,
+      "epoch_minutes_vs_published_ephemeris": 7.01,
+      "depth_ratio": 0.829
+    }
+  },
+  "ledger": {
+    "file": "ledger.jsonl",
+    "entries": 6,
+    "head_hash": "5ab061ebf4b097fb8106804cf9ef94bc29476b329ff070e7da8fadd7d6cc4291",
+    "sha256": "6844c3f6b1146eccd02cb5e618dfe8ed643eb5c7a6d724c440780ac566dda791"
+  },
+  "runtime_seconds": 22.0,
+  "reproduce": "python demos/ledger-grok/run_demo.py && python demos/ledger-grok/verify_ledger.py"
+}

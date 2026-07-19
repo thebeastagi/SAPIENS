@@ -1,0 +1,19 @@
+{
+  "kind": "bounded_live_adapter_probe",
+  "ts": "2026-07-19T13:45:17Z",
+  "endpoint": "https://api.x.ai/v1/chat/completions",
+  "model": "grok-4.20-0309-non-reasoning",
+  "http_status": 200,
+  "latency_s": 0.74,
+  "max_tokens": 96,
+  "usage": {
+    "prompt_tokens": 225,
+    "completion_tokens": 49,
+    "total_tokens": 274
+  },
+  "cost_note": "xAI response carries no cost field; single minimal-token call",
+  "prompt": "In one sentence, state an adversarial-review question you would ask about a claimed re-detection of the known exoplanet Kepler-10 b in a light-curve validation demo. Reply with that single sentence only.",
+  "reply_text": "Would the claimed re-detection of Kepler-10 b still be statistically significant if the light-curve validation demo had instead been performed on an independent, equally long segment of Kepler data that was known a priori to contain no transits of that planet?",
+  "sanitization": "API key read from environment only; never printed, logged, or copied; this file intentionally contains no credentials",
+  "note": "one-call proof only; the committed demo ledger and tests use the deterministic offline mock adapter"
+}
