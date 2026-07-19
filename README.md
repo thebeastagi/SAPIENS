@@ -121,6 +121,18 @@ cover both the true period and a deliberately incorrect period. This is a
 deterministic pipeline fixture, **not analysis of telescope data or an
 astrophysical result**.
 
+## Demos
+
+- **[`demos/ledger-grok/`](demos/ledger-grok/) — LEDGER: Kepler-10 b re-derivation.**
+  A public validation demo: re-derives the *already known* exoplanet Kepler-10 b
+  from a public Kepler Quarter-1 light curve (stdlib-only BLS transit search)
+  and records every step — data hash, hypothesis, analysis, adversarial
+  challenge, verdict — in the hash-chained ledger, with a verifier anyone can
+  run. The hypothesis/challenge steps use an adapter interface (deterministic
+  offline mock by default; optional live Grok/xAI backend, not used in the
+  committed run). **A re-derivation of a published result — not a discovery.**
+  Live page: <https://thebeastagi.github.io/SAPIENS/>.
+
 ## Status & roadmap
 
 **Phase 0 — shipped** (current package version `0.1.0`): clean-room foundation,
