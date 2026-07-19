@@ -6,12 +6,17 @@
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](pyproject.toml)
 
-SAPIENS is an **experimental research platform** for traceable, cross-domain
-scientific-discovery workflows. It provides the plumbing a discovery system
-needs before it can be trusted: a domain-neutral adapter boundary, an
-append-only hash-chained evidence ledger, kernel-owned promotion gates, an
-epistemically conservative cross-domain bridge, and bounded background
-autonomy.
+SAPIENS is an **experimental platform for traceable cross-domain
+scientific-discovery workflows** — a `DomainAdapter` boundary, a hash-chained
+L0→L4 evidence ledger, and kernel-gated promotions. **Phase 0: synthetic
+adapters only, no discoveries claimed.**
+
+It provides the plumbing a discovery system needs before it can be trusted:
+a domain-neutral adapter boundary, an append-only hash-chained evidence
+ledger, kernel-owned promotion gates, an epistemically conservative
+cross-domain bridge, bounded background autonomy, and an autonomous
+discovery driver that climbs candidates through the gates under strict
+budgets.
 
 > **Read this first — despite the acronym:** SAPIENS is **not** AGI, ASI, or
 > superintelligence, and does not claim to be. It is an experimental research
@@ -41,6 +46,9 @@ src/sapiens/
   budget.py       cooperative step/time budgets and preemption exceptions
   queue.py        bounded SQLite job queue with leases and idempotency
   daemon.py       preemptible background worker skeleton
+  discovery.py    autonomous discovery driver — proposes candidates and
+                  climbs them L0→L3 under budgets via the daemon; L4 stays
+                  human-gated
   cli.py          synthetic-only demo entrypoint
   adapters/       three deterministic synthetic adapters (linear, threshold,
                   periodic-signal photometry)
@@ -88,10 +96,13 @@ ruff check src tests
 pytest
 
 # synthetic end-to-end demo (the installed `sapiens` command is equivalent)
-python -m sapiens.cli
+python -m sapiens.cli            # bare invocation = `demo` subcommand
 
 # optionally keep the generated evidence ledger for inspection
-python -m sapiens.cli --workdir .sapiens-demo
+python -m sapiens.cli demo --workdir .sapiens-demo
+
+# autonomous discovery driver over the synthetic adapters (bounded + budgeted)
+python -m sapiens.cli discover --max-seconds 10
 ```
 
 The CLI proposes deterministic synthetic candidates in the kinematics and
