@@ -31,7 +31,7 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 addopts = "-q"
-testpaths = ["tests", "demos/ledger-grok/tests"]
+testpaths = ["tests", "demos/ledger-grok/tests", "mcp/tests"]
 
 [tool.ruff]
 target-version = "py310"

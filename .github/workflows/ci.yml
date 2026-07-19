@@ -17,11 +17,22 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
       - name: Install
         run: python -m pip install -e ".[dev]"
       - name: Lint
-        run: ruff check src tests
-      - name: Tests
+        # NOTE: demos/ is intentionally out of lint scope (pre-existing debt,
+        # 13 violations at introduction of the MCP server) — fix separately.
+        run: ruff check src tests mcp
+      - name: Tests (core + LEDGER demo + MCP server)
         run: pytest
       - name: Import smoke
         run: python -c "import sapiens; print(sapiens.__version__)"
+      - name: MCP stdio smoke (initialize + tools/list)
+        run: |
+          printf '%s\n' \
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"ci","version":"0"}}}' \
+            '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' \
+            | python3 mcp/sapiens_ledger_mcp/server.py \
+            | python3 -c "import sys, json; r=[json.loads(x) for x in sys.stdin if x.strip()]; assert r[0]['result']['serverInfo']['name']=='sapiens-ledger-mcp'; names=[t['name'] for t in r[1]['result']['tools']]; assert names==['ledger_verify','ledger_query','transit_redetect'], names; print('MCP smoke OK:', names)"

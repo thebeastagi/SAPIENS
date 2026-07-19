@@ -133,6 +133,16 @@ astrophysical result**.
   committed run). **A re-derivation of a published result — not a discovery.**
   Live page: <https://thebeastagi.github.io/SAPIENS/>.
 
+## MCP server
+
+- **[`mcp/`](mcp/) — read-only MCP access to the LEDGER demo.** A zero-dependency
+  stdio MCP server (Python 3.10+ stdlib only) exposing three tools to any MCP
+  client (e.g. Grok CLI): `ledger_verify` (hash-chain integrity + data hash),
+  `ledger_query` (sanitized ledger/results fields), and `transit_redetect`
+  (deterministic re-run of the bounded Kepler-10 b detection). Read-only,
+  offline, no credentials, no network, no model calls. Setup and security
+  posture: [MCP-INTEGRATION.md](MCP-INTEGRATION.md).
+
 ## Status & roadmap
 
 **Phase 0 — shipped** (current package version `0.1.0`): clean-room foundation,
