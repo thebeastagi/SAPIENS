@@ -59,3 +59,19 @@ def test_results_json_is_consistent_with_ledger():
     assert results["ledger"]["head_hash"] == entries[-1].entry_hash
     assert results["adapter_mode"] == "mock"
     assert results["verdict"]["match"] is True
+
+
+PROBE = ROOT / "out" / "grok-live-probe.json"
+
+
+def test_live_probe_artifact_is_sanitized():
+    """The bounded live proof must record status/usage/reply only — no secrets."""
+    if not PROBE.exists():
+        pytest.skip("no live probe artifact (mock-only checkout)")
+    probe = json.loads(PROBE.read_text())
+    assert probe["http_status"] == 200
+    assert probe["usage"]["total_tokens"] > 0
+    assert probe["reply_text"]
+    blob = PROBE.read_text().lower()
+    for marker in ("bearer ", "authorization", "api_key", "xai-"):
+        assert marker not in blob

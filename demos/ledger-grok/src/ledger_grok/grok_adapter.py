@@ -113,13 +113,13 @@ class RealGrokAdapter:
     API_URL = "https://api.x.ai/v1/chat/completions"
 
     def __init__(self, api_key: str | None = None, model: str | None = None, timeout: int = 60):
-        self.api_key = api_key or os.environ.get("GROK_API_KEY")
+        self.api_key = api_key or os.environ.get("GROK_API_KEY") or os.environ.get("XAI_API_KEY")
         if not self.api_key:
             raise RuntimeError(
-                "GROK_API_KEY is not set — run with the mock adapter (offline, default) "
-                "or export a key to use the live Grok path."
+                "GROK_API_KEY/XAI_API_KEY is not set — run with the mock adapter "
+                "(offline, default) or export a key to use the live Grok path."
             )
-        self.model = model or os.environ.get("GROK_MODEL", "grok-4")
+        self.model = model or os.environ.get("GROK_MODEL", "grok-4.20-0309-non-reasoning")
         self.timeout = timeout
 
     def _chat(self, system: str, user: str) -> dict:

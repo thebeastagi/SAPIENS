@@ -90,11 +90,16 @@ adapter = get_adapter("real", data_sha256)   # needs GROK_API_KEY in env
 
 - `MockGrokAdapter` — fixed templates seeded by the dataset hash; zero
   credentials, zero network; used for the committed run and in tests.
-- `RealGrokAdapter` — calls the xAI chat-completions API (`GROK_MODEL`,
-  default `grok-4`, temperature 0). The key is read from the environment and
-  never written to the ledger, results, or logs. At the time of this run no
-  xAI key was configured in our environment, so the live path is documented
-  as ready-to-run but unexercised here.
+- `RealGrokAdapter` — calls the xAI chat-completions API (`GROK_API_KEY` or
+  `XAI_API_KEY` from the environment, never stored; `GROK_MODEL` override,
+  default `grok-4.20-0309-non-reasoning`, temperature 0).
+
+**Bounded live proof (2026-07-19):** exactly one minimal live call was made
+with `tools/grok_live_probe.py` — HTTP 200, 274 tokens total, key read from
+the environment only. Model, status, usage, and the sanitized one-sentence
+reply are recorded in `out/grok-live-probe.json`. The committed ledger and
+all tests remain on the deterministic offline mock; the probe is a separate
+one-call proof, not part of the reproducible run.
 
 ## Layout
 

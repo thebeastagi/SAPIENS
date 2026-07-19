@@ -22,6 +22,8 @@ table { width:100%; border-collapse:collapse; margin:.6rem 0 1rem; font-size:.95
 th, td { text-align:left; padding:.5rem .6rem; border-bottom:1px solid var(--edge); }
 th { color:var(--dim); font-weight:600; }
 .fixture-badge { display:inline-block; background:#3d2b12; color:var(--warn); border:1px solid #6b4a1c; border-radius:6px; padding:.1rem .5rem; font-size:.78rem; font-weight:600; }
+.live-badge { display:inline-block; background:#12321b; color:var(--good); border:1px solid #1f6f38; border-radius:6px; padding:.1rem .5rem; font-size:.78rem; font-weight:600; }
+.live-box { background:var(--panel); border:1px solid #1f6f38; border-radius:10px; padding:1rem 1.1rem; margin:.8rem 0; }
 .fixture-box { background:var(--panel); border:1px dashed #6b4a1c; border-radius:10px; padding:1rem 1.1rem; margin:.8rem 0; }
 pre { background:#0d141d; border:1px solid var(--edge); border-radius:10px; padding:1rem; overflow:auto; max-height:520px; font-size:.8rem; line-height:1.45; }
 code { color:var(--accent); }
@@ -93,6 +95,17 @@ published value, inside the demo's stated tolerance (&Delta;P &le; 5&times;10<su
 <ul><li><strong>harmonic_confusion</strong> — Is the detected period the true period or a harmonic? Compare box power at P/2, P and 2P.</li>
 <li><strong>odd_even_depth</strong> — Do odd- and even-numbered transits differ in depth? A significant difference flags an eclipsing binary whose true period is 2P.</li>
 <li><strong>secondary_eclipse</strong> — Is there a secondary dip near phase 0.5? A deep secondary flags a self-luminous companion rather than a planet.</li></ul>
+</div>
+
+<div class="live-box">
+<p><span class="live-badge">one-time live call — 2026-07-19T13:45:17Z, not part of the deterministic run</span></p>
+<p>A single bounded proof call to the live Grok adapter (xAI API): HTTP 200,
+model <code>grok-4.20-0309-non-reasoning</code>, 274 tokens total, 0.74 s.
+Live Grok's one-sentence adversarial question:</p>
+<p><em>&ldquo;Would the claimed re-detection of Kepler-10 b still be statistically significant if the light-curve validation demo had instead been performed on an independent, equally long segment of Kepler data that was known a priori to contain no transits of that planet?&rdquo;</em></p>
+<p class="note">Record: <a href="grok-live-probe.json">grok-live-probe.json</a> (model, status, usage,
+sanitized reply only — no credentials). The committed ledger and tests remain on the deterministic
+offline mock; this was exactly one minimal proof call.</p>
 </div>
 
 <h2>The ledger (all 6 entries)</h2>

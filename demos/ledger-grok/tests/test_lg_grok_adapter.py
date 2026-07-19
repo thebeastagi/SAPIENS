@@ -40,5 +40,6 @@ def test_factory():
 
 def test_real_adapter_requires_key(monkeypatch):
     monkeypatch.delenv("GROK_API_KEY", raising=False)
+    monkeypatch.delenv("XAI_API_KEY", raising=False)
     with pytest.raises(RuntimeError, match="GROK_API_KEY"):
         RealGrokAdapter()
