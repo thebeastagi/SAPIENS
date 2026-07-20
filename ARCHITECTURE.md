@@ -1,4 +1,4 @@
-# SAPIENS Architecture (Phases 0–2)
+# SAPIENS Architecture (Phases 0–3)
 
 ## Design goals
 
@@ -22,6 +22,9 @@ src/sapiens/
   fixtures.py     seeded-bias fixture suite with labelled outcomes (Phase 2)
   calibration.py  gate-performance calibration reports (Phase 2)
   confidence.py   calibration-gated confidence aggregation (Phase 2)
+  review.py       L3 panel protocol: roles, objections, rounds, gates (Phase 3)
+  reviewers.py    deterministic reference reviewers, four roles (Phase 3)
+  catchrate.py    panel catch-rate scoring over seeded fixtures (Phase 3)
   ledger.py       JSONL hash-chain ledger and L0→L4 transition guard
   kernel.py       domain-neutral candidate registration and next-gate validation
   bridge.py       cross-domain structure transfer with mandatory L0 reset
@@ -56,6 +59,10 @@ Hash chaining detects tampering but does **not** prove authorship, scientific tr
 ## Validation gates (Phase 2)
 
 `DiscoveryKernel(validation=ValidationGates(...))` opts into automated L1/L2 gates. L1 runs statistical sanity checks over a candidate's internal evidence (determinism across identical reruns, degenerate constant scores, score presence). L2 requires a declared `HoldoutProtocol` for the domain and enforces holdout discipline: replication evidence must come from declared holdout datasets, dataset collisions and (dataset, seed) reuse across the boundary are leakage and reject the gate, and a minimum pass fraction applies. Gate verdicts are appended to `kernel.gate_log` (inspectable, recomputable) — the kernel never fabricates gate outcomes as ledger evidence. Gates are pure functions in `sapiens.validation`; `sapiens.fixtures` ships a labelled seeded-bias suite; `sapiens.calibration` scores gates against it; `sapiens.confidence` refuses to aggregate confidence without the resulting report.
+
+## L3 review panels (Phase 3)
+
+`DiscoveryKernel(panel=ReviewPanel(...))` gates L3 promotion on a structured panel. Reviewers are pure deterministic functions in four roles (statistician, domain theorist, methodologist, devil's advocate). The panel convenes bounded rounds; objections carry severity (MINOR/MAJOR/BLOCKING) and a tracked lifecycle (raised/sustained/withdrawn); reference reviewers escalate re-affirmed MAJOR findings to BLOCKING. Approval requires no sustained MAJOR/BLOCKING objection; MINOR caveats are recorded but non-fatal. The panel's verdict is recorded in the ledger as review evidence (`panel-transcript` dataset) — approval adds it to the promotion refs, rejection leaves the candidate at L2 with the rejection on record. `sapiens.catchrate` scores panels against the seeded fixture suite.
 
 ## Cross-domain bridge
 

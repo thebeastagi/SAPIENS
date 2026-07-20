@@ -53,11 +53,26 @@ Validation framework v1:
   documented heuristic (raw pass fraction × demonstrated catch rate) with
   full provenance. No invented precision.
 
-## Phase 3 — structured L3 review panels
+## Phase 3 — shipped (package version 0.4.0)
 
-- Role-specialized reviewer schemas: statistician, domain theorist, methodologist, devil's advocate.
-- Multi-round reports, objection tracking, disagreement gates.
-- Catch-rate scoring on seeded known-bad and known-good candidates.
+Structured L3 review panels:
+
+- ~~Role-specialized reviewer schemas~~ Shipped: `sapiens.review` —
+  statistician, domain theorist, methodologist, devil's advocate; typed
+  approve/object/abstain verdicts with severity-graded objections.
+- ~~Multi-round reports, objection tracking, disagreement gates~~ Shipped:
+  bounded deterministic multi-round protocol; objection lifecycle
+  (raised/sustained/withdrawn) tracked in every `PanelReport`; sustained
+  MAJOR/BLOCKING objections reject, MINOR caveats are recorded but
+  non-fatal (documented gate semantics). Deterministic reference reviewers
+  in `sapiens.reviewers` re-run the Phase-2 gates independently and hunt
+  seeded-bias signatures.
+- ~~Catch-rate scoring~~ Shipped: `sapiens.catchrate.score_panel` over the
+  seeded fixture suite — per-role and panel-level catch rates plus
+  false-reject rate, with an explicit small-sample caveat.
+- Kernel integration: with a panel configured, L3 promotion requires panel
+  approval, and the verdict is recorded in the ledger as review evidence
+  (no side channel). Without a panel, Phase-2 behaviour is unchanged.
 
 ## Phase 4 — real domain adapters
 
