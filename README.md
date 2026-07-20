@@ -46,6 +46,10 @@ src/sapiens/
   permissions.py  owner-permission/licence manifest for third-party code
   isolation.py    subprocess + rlimit execution for UNTRUSTED adapters
   checkpoints.py  HMAC-signed ledger checkpoints + external anchor export
+  validation.py   L1/L2 automated gates: sanity checks, holdout + leakage
+  fixtures.py     seeded-bias fixture suite (labelled ground truth)
+  calibration.py  gate-performance calibration reports
+  confidence.py   calibration-gated confidence aggregation (refuses blindly)
   ledger.py       JSONL hash-chained evidence ledger, L0→L4 transition guard
   kernel.py       domain-neutral DiscoveryKernel; owns all promotions
   bridge.py       cross-domain structure transfer — ALWAYS resets target to L0
@@ -167,7 +171,7 @@ three deterministic synthetic adapters, synthetic-only orchestration,
 hash-chained ledger, kernel gates, bridge, bounded queue/daemon, and CI on
 Python 3.10/3.11/3.12.
 
-**Phase 1 — shipped** (current package version `0.2.0`): the synthetic-only
+**Phase 1 — shipped** (package version `0.2.0`): the synthetic-only
 gate is replaced by a **trust-tiered adapter registry** (SYNTHETIC / CORE /
 UNTRUSTED), an **owner-permission/licence manifest**
 ([`permissions.json`](permissions.json) — empty by default: no third-party
@@ -178,11 +182,19 @@ address-space / open-files plus wall-clock timeout, fail-closed), and
 (key from the environment only, never stored). No real-data adapter ships in
 Phase 1; tiers are exercised by synthetic adapters and test doubles.
 
+**Phase 2 — shipped** (current package version `0.3.0`): automated L0→L2
+**validation gates** — L1 statistical sanity checks (determinism,
+degenerate-score rejection) and L2 declared holdout protocols with explicit
+leakage controls (dataset collision, (dataset, seed) reuse) — plus a
+labelled **seeded-bias fixture suite** (known-good / overfit / leakage /
+degenerate), **calibration reports** (catch rate and false-reject rate with
+sample counts), and **calibration-gated confidence aggregation** that
+refuses to emit a number without sufficient calibration data.
+
 Next, in order (see [`ROADMAP.md`](ROADMAP.md)):
 
 1. ~~**Phase 1** — legal/licence gate and adapter hardening~~ **shipped**.
-2. **Phase 2** — validation framework v1 (statistical gates, holdout
-   protocols, leakage controls, seeded-bias fixtures, calibration).
+2. ~~**Phase 2** — validation framework v1~~ **shipped**.
 3. **Phase 3** — structured L3 review panels (role-specialized reviewers,
    multi-round objection tracking, catch-rate scoring).
 4. **Phase 4** — **real domain adapters** — first a clean-room Kepler

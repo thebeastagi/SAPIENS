@@ -1,4 +1,4 @@
-# SAPIENS Architecture (Phases 0–1)
+# SAPIENS Architecture (Phases 0–2)
 
 ## Design goals
 
@@ -18,6 +18,10 @@ src/sapiens/
   permissions.py  owner-permission/licence manifest for third-party code (Phase 1)
   isolation.py    subprocess + rlimit execution for UNTRUSTED adapters (Phase 1)
   checkpoints.py  signed ledger checkpoints + external anchor export (Phase 1)
+  validation.py   L1/L2 automated gates + holdout protocols + leakage controls (Phase 2)
+  fixtures.py     seeded-bias fixture suite with labelled outcomes (Phase 2)
+  calibration.py  gate-performance calibration reports (Phase 2)
+  confidence.py   calibration-gated confidence aggregation (Phase 2)
   ledger.py       JSONL hash-chain ledger and L0→L4 transition guard
   kernel.py       domain-neutral candidate registration and next-gate validation
   bridge.py       cross-domain structure transfer with mandatory L0 reset
@@ -48,6 +52,10 @@ Required methods:
 The ledger is newline-delimited canonical JSON. Each event stores the previous event hash and its own hash. Replay validates sequence, hashes, candidate creation, evidence scope, one-step promotion, required evidence kinds, demotion reasons, and the L4 human gate.
 
 Hash chaining detects tampering but does **not** prove authorship, scientific truth, or external timestamping. Phase-1 `checkpoint` events summarise the chain (event count + head hash) and may carry an HMAC-SHA256 signature (environment-held key, never stored); `sapiens.checkpoints` also exports/verifies external anchor files. HMAC is symmetric: it proves key possession, not third-party authorship.
+
+## Validation gates (Phase 2)
+
+`DiscoveryKernel(validation=ValidationGates(...))` opts into automated L1/L2 gates. L1 runs statistical sanity checks over a candidate's internal evidence (determinism across identical reruns, degenerate constant scores, score presence). L2 requires a declared `HoldoutProtocol` for the domain and enforces holdout discipline: replication evidence must come from declared holdout datasets, dataset collisions and (dataset, seed) reuse across the boundary are leakage and reject the gate, and a minimum pass fraction applies. Gate verdicts are appended to `kernel.gate_log` (inspectable, recomputable) — the kernel never fabricates gate outcomes as ledger evidence. Gates are pure functions in `sapiens.validation`; `sapiens.fixtures` ships a labelled seeded-bias suite; `sapiens.calibration` scores gates against it; `sapiens.confidence` refuses to aggregate confidence without the resulting report.
 
 ## Cross-domain bridge
 
