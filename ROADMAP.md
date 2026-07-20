@@ -30,11 +30,28 @@ Honest limits: rlimits bound resource use but are not a security sandbox;
 HMAC proves local key possession, not third-party authorship. No real-data
 adapter ships in Phase 1.
 
-## Phase 2 — validation framework v1
+## Phase 2 — shipped (package version 0.3.0)
 
-- Expand L0→L2 automated gates with statistical sanity checks, holdout protocols, and explicit leakage controls.
-- Add seeded-bias fixtures and calibration reports.
-- Add confidence aggregation only after calibration data exists; do not invent precision.
+Validation framework v1:
+
+- ~~Expand L0→L2 automated gates~~ Shipped: `sapiens.validation` — L1
+  internal-consistency gate (score presence/range, determinism across reruns,
+  degenerate constant-score rejection) and L2 holdout-replication gate
+  (declared `HoldoutProtocol` per domain; explicit leakage controls on
+  dataset collision and (dataset, seed) reuse; pass-fraction threshold).
+  Opt-in kernel wiring via `DiscoveryKernel(validation=...)`; gate verdicts
+  are logged, never fabricated as evidence; a configured domain without a
+  declared protocol fails closed.
+- ~~Add seeded-bias fixtures and calibration reports.~~ Shipped:
+  `sapiens.fixtures` (known-good / overfit / leakage / degenerate, labelled
+  with expected outcomes) and `sapiens.calibration` (`CalibrationReport`:
+  catch rate, false-reject rate, sample counts; report ids are content
+  hashes).
+- ~~Add confidence aggregation only after calibration data exists~~ Shipped:
+  `sapiens.confidence.aggregate_confidence` raises `UncalibratedError`
+  without a sufficiently sampled calibration report; with one, it emits a
+  documented heuristic (raw pass fraction × demonstrated catch rate) with
+  full provenance. No invented precision.
 
 ## Phase 3 — structured L3 review panels
 
