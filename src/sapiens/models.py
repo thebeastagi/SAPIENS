@@ -58,19 +58,39 @@ class Evidence:
         object.__setattr__(self, "details", frozen_mapping(self.details))
 
 
+CODE_ORIGINS = ("first-party-clean-room", "third-party")
+
+
 @dataclass(frozen=True)
 class AdapterManifest:
+    """What an adapter is made of. Trust *decisions* live in the registry (Phase 1).
+
+    ``synthetic_only`` describes the data: True means the adapter touches only
+    deterministic synthetic data. ``code_origin`` describes the code:
+    first-party-clean-room or third-party. Third-party code additionally
+    requires ``third_party_source`` so the permission manifest can be checked.
+    """
+
     name: str
     version: str
     domain: str
     vocabulary: tuple[str, ...]
     synthetic_only: bool = True
+    code_origin: str = "first-party-clean-room"
+    data_sources: tuple[str, ...] = ()
+    third_party_source: str | None = None
 
     def __post_init__(self) -> None:
         if not self.name or not self.version or not self.domain:
             raise ValueError("adapter manifest fields must be non-empty")
-        if not self.synthetic_only:
-            raise ValueError("Phase 0 accepts synthetic-only adapters")
+        if self.code_origin not in CODE_ORIGINS:
+            raise ValueError(f"code_origin must be one of {CODE_ORIGINS}")
+        if self.synthetic_only and self.data_sources:
+            raise ValueError("synthetic-only adapters must not declare real data sources")
+        if self.code_origin == "third-party" and not self.third_party_source:
+            raise ValueError("third-party adapters must declare third_party_source")
+        if self.code_origin == "first-party-clean-room" and self.third_party_source:
+            raise ValueError("clean-room adapters must not declare a third_party_source")
 
 
 @dataclass(frozen=True)

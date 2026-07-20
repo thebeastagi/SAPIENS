@@ -33,3 +33,16 @@ No third-party source code is included. Therefore no third-party notices are emb
 ## Known licence gate
 
 ASTRA-dev/ASTRA/GEODISC/BIODISC lack explicit licences at inspected refs. Any future kernel extraction from those repositories requires a signed/committed compatible licence or separate written permission. Until then: architecture-only references or clean-room reimplementation only.
+
+## Phase 1 — permission manifest mechanism
+
+Phase 1 operationalises the gate: [`permissions.json`](permissions.json) is the
+machine-readable owner-permission manifest consumed by `sapiens.permissions`
+and enforced by `sapiens.registry`. Any adapter declaring
+`code_origin="third-party"` is UNTRUSTED-tier: it cannot validate without a
+matching active permission entry (`adapter:<name>` scope for its declared
+`third_party_source`), and it executes only inside the resource-limited
+subprocess (`sapiens.isolation`). **The shipped manifest is empty** — zero
+ASTRA-family permissions — so the clean-room boundary above is enforced by
+code, not by convention. Entries may be added only with explicit owner
+sign-off (recorded grantor, licence, evidence reference, validity window).

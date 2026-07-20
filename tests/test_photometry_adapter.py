@@ -4,7 +4,11 @@ from sapiens import DiscoveryKernel, EvidenceLedger, EvidenceLevel, transfer
 from sapiens.adapters import SyntheticPhotometryAdapter, SyntheticThresholdAdapter
 from sapiens.budget import ExecutionContext
 
-CTX = ExecutionContext(10, 2)
+
+def ctx() -> ExecutionContext:
+    # Fresh context per call: a module-level time-budgeted context starts its
+    # wall clock at import/collection time and goes stale as the suite grows.
+    return ExecutionContext(10, 10)
 
 
 def test_photometry_true_period_promotes_to_l3(tmp_path: Path):
@@ -13,9 +17,9 @@ def test_photometry_true_period_promotes_to_l3(tmp_path: Path):
     adapter = SyntheticPhotometryAdapter()
     candidate = adapter.propose(seed=5, limit=1)[0]
     kernel.register(candidate)
-    assert kernel.validate_next(adapter, candidate, seed=40, context=CTX) == EvidenceLevel.L1
-    assert kernel.validate_next(adapter, candidate, seed=41, context=CTX) == EvidenceLevel.L2
-    assert kernel.validate_next(adapter, candidate, seed=42, context=CTX) == EvidenceLevel.L3
+    assert kernel.validate_next(adapter, candidate, seed=40, context=ctx()) == EvidenceLevel.L1
+    assert kernel.validate_next(adapter, candidate, seed=41, context=ctx()) == EvidenceLevel.L2
+    assert kernel.validate_next(adapter, candidate, seed=42, context=ctx()) == EvidenceLevel.L3
     assert ledger.verify() is True
 
 
@@ -25,7 +29,7 @@ def test_photometry_wrong_period_does_not_promote(tmp_path: Path):
     adapter = SyntheticPhotometryAdapter()
     candidate = adapter.propose(seed=5, limit=2)[1]  # the wrong-period candidate
     kernel.register(candidate)
-    assert kernel.validate_next(adapter, candidate, seed=40, context=CTX) == EvidenceLevel.L0
+    assert kernel.validate_next(adapter, candidate, seed=40, context=ctx()) == EvidenceLevel.L0
 
 
 def test_photometry_evidence_is_well_formed():

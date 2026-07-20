@@ -2,7 +2,9 @@
 
 Hash chaining detects accidental or after-the-fact modification; it does not prove
 identity, authorship, scientific validity, or resistance to an actor who can rewrite
-an entire file. Signatures and external anchoring are roadmap items.
+an entire file. Phase 1 adds ``checkpoint`` events (see ``sapiens.checkpoints``):
+HMAC-signed or unsigned markers that summarise the chain, plus external anchor
+export. Signatures are symmetric and prove key possession, not authorship.
 """
 
 from __future__ import annotations
@@ -19,7 +21,8 @@ from typing import Any
 from .models import Evidence, EvidenceLevel
 
 GENESIS = "0" * 64
-_ALLOWED_KINDS = {"candidate", "evidence", "promotion", "demotion", "transfer"}
+_ALLOWED_KINDS = {"candidate", "evidence", "promotion", "demotion", "transfer", "checkpoint"}
+CHECKPOINT_ACTOR = "__ledger__"
 
 
 def _canonical(value: Any) -> bytes:
@@ -105,6 +108,15 @@ class EvidenceLedger:
                     bool(event.payload.get("passed")),
                     str(event.payload.get("kind", "")),
                 )
+            elif event.kind == "checkpoint":
+                if event.candidate_id != CHECKPOINT_ACTOR:
+                    raise LedgerIntegrityError("checkpoint must be recorded by the ledger actor")
+                if int(event.payload.get("event_count", -1)) != event.seq - 1:
+                    raise LedgerIntegrityError("checkpoint event count does not match the chain")
+                if event.payload.get("head_hash") != previous:
+                    raise LedgerIntegrityError("checkpoint head hash does not match the chain")
+                if bool(event.payload.get("signed")) != bool(event.payload.get("signature")):
+                    raise LedgerIntegrityError("checkpoint signed flag and signature disagree")
             else:
                 if current is None:
                     raise LedgerIntegrityError("transition references unknown candidate")
@@ -155,8 +167,9 @@ class EvidenceLedger:
                 level = EvidenceLevel.L0
             elif event.kind == "evidence":
                 evidence_ids.add(str(event.payload["evidence_id"]))
-            else:
+            elif event.kind in {"promotion", "demotion"}:
                 level = EvidenceLevel(int(event.payload["to_level"]))
+            # checkpoint events carry no per-candidate state
         if level is None:
             raise KeyError(candidate_id)
         return CandidateState(level, frozenset(evidence_ids))

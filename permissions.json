@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "comment": "Owner permissions for third-party code reuse (Phase 1). EMPTY BY DEFAULT: no ASTRA-family (or any other third-party) permissions are recorded, so every third-party adapter is refused. Add entries only with explicit owner sign-off; see PROVENANCE.md.",
+  "entries": []
+}
