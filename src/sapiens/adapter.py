@@ -25,8 +25,15 @@ class DomainAdapter(Protocol):
 
 
 def validate_adapter(adapter: DomainAdapter) -> None:
-    if not isinstance(adapter, DomainAdapter):
-        raise TypeError("adapter does not implement DomainAdapter")
-    manifest = adapter.manifest
-    if not manifest.synthetic_only:
-        raise ValueError("Phase 0 refuses non-synthetic adapters")
+    """Phase-1 gate: auto-tiered registry validation.
+
+    Kept for backward compatibility with Phase-0 callers. Synthetic adapters
+    pass exactly as before; first-party clean-room real-data adapters pass at
+    CORE tier; third-party adapters require a recorded permission and raise
+    ``MissingPermissionError`` without one. Callers that need the tier (e.g.
+    the kernel, to decide on isolation) should use ``AdapterRegistry``
+    directly.
+    """
+    from .registry import AdapterRegistry
+
+    AdapterRegistry().validate_adapter(adapter)

@@ -8,8 +8,8 @@
 
 SAPIENS is an **experimental platform for traceable cross-domain
 scientific-discovery workflows** — a `DomainAdapter` boundary, a hash-chained
-L0→L4 evidence ledger, and kernel-gated promotions. **Phase 0: synthetic
-adapters only, no discoveries claimed.**
+L0→L4 evidence ledger, and kernel-gated promotions. **Phases 0–1 shipped:
+synthetic adapters only in practice, no discoveries claimed.**
 
 It provides the plumbing a discovery system needs before it can be trusted:
 a domain-neutral adapter boundary, an append-only hash-chained evidence
@@ -20,11 +20,13 @@ budgets.
 
 > **Read this first — despite the acronym:** SAPIENS is **not** AGI, ASI, or
 > superintelligence, and does not claim to be. It is an experimental research
-> platform. **No scientific discoveries are claimed.** Phase 0 ships with
-> deterministic **synthetic adapters only**; the included examples discover
+> platform. **No scientific discoveries are claimed.** The shipped adapters
+> remain deterministic and **synthetic only**; the included examples discover
 > nothing about nature. The CLI reports `"scientific_discoveries_claimed": 0`
 > by construction, and the test suite enforces the honesty and boundary
-> invariants described below.
+> invariants described below. Phase 1 added the *machinery* for real-domain
+> work (trust tiers, isolation, permissions) — but no real-data adapter
+> ships yet.
 
 ## Why
 
@@ -39,7 +41,11 @@ inherits traceability and bounded confidence instead of retrofitting them.
 ```text
 src/sapiens/
   models.py       immutable candidate / evidence / manifest models
-  adapter.py      DomainAdapter protocol + Phase-0 adapter validation
+  adapter.py      DomainAdapter protocol; validation routes to the registry
+  registry.py     trust-tiered adapter registry (SYNTHETIC / CORE / UNTRUSTED)
+  permissions.py  owner-permission/licence manifest for third-party code
+  isolation.py    subprocess + rlimit execution for UNTRUSTED adapters
+  checkpoints.py  HMAC-signed ledger checkpoints + external anchor export
   ledger.py       JSONL hash-chained evidence ledger, L0→L4 transition guard
   kernel.py       domain-neutral DiscoveryKernel; owns all promotions
   bridge.py       cross-domain structure transfer — ALWAYS resets target to L0
@@ -68,7 +74,7 @@ Key design rules (enforced by tests in [`tests/`](tests/)):
   - **L2 Replication** — passed held-out / reproducibility checks.
   - **L3 Review** — passed bounded structured review / adversarial checks.
   - **L4 External-ready** — requires an explicit **human gate**; autonomous
-    promotion to L4 is disabled in Phase 0.
+    promotion to L4 is disabled.
 - **Kernel-owned promotions** — adapters propose, only the `DiscoveryKernel`
   promotes, and only through the ledger's transition guard.
 - **Cross-domain bridge resets to L0** — transfer moves *structure and
@@ -156,33 +162,43 @@ astrophysical result**.
 
 ## Status & roadmap
 
-**Phase 0 — shipped** (current package version `0.1.0`): clean-room foundation,
+**Phase 0 — shipped** (package version `0.1.0`): clean-room foundation,
 three deterministic synthetic adapters, synthetic-only orchestration,
 hash-chained ledger, kernel gates, bridge, bounded queue/daemon, and CI on
-Python 3.10/3.11/3.12. The test suite currently includes positive and negative
-period-detection fixtures, L0 reset/provenance checks, ledger tamper checks,
-promotion guards, and bounded queue/daemon behavior.
+Python 3.10/3.11/3.12.
+
+**Phase 1 — shipped** (current package version `0.2.0`): the synthetic-only
+gate is replaced by a **trust-tiered adapter registry** (SYNTHETIC / CORE /
+UNTRUSTED), an **owner-permission/licence manifest**
+([`permissions.json`](permissions.json) — empty by default: no third-party
+code may power an adapter without a recorded entry), **subprocess isolation
+with OS-level resource limits** for UNTRUSTED adapters (rlimit CPU /
+address-space / open-files plus wall-clock timeout, fail-closed), and
+**HMAC-signed ledger checkpoints** with external anchor export
+(key from the environment only, never stored). No real-data adapter ships in
+Phase 1; tiers are exercised by synthetic adapters and test doubles.
 
 Next, in order (see [`ROADMAP.md`](ROADMAP.md)):
 
-1. **Phase 1** — legal/licence gate and adapter hardening (trust-tiered
-   adapter registry, sandboxing, signed ledger checkpoints).
+1. ~~**Phase 1** — legal/licence gate and adapter hardening~~ **shipped**.
 2. **Phase 2** — validation framework v1 (statistical gates, holdout
    protocols, leakage controls, seeded-bias fixtures, calibration).
 3. **Phase 3** — structured L3 review panels (role-specialized reviewers,
    multi-round objection tracking, catch-rate scoring).
-4. **Phase 4** — **real domain adapters** (ASTRA / GEODISC / BIODISC / SLATE)
-   — only after licence and owner review.
+4. **Phase 4** — **real domain adapters** — first a clean-room Kepler
+   photometry adapter on public NASA/MAST data; ASTRA / GEODISC / BIODISC /
+   SLATE adapters only after licence and owner review.
 5. **Phase 5** — external-review workflows with human L4 gates and
    reproduction bundles.
 
 ## Provenance & legal boundary
 
-SAPIENS Phase 0 is a **clean-room implementation**: no source code from
+SAPIENS is a **clean-room implementation**: no source code from
 ASTRA-dev, ASTRA, GEODISC, BIODISC, or SLATE was copied into this repository
-(those codebases carry unresolved licensing; reuse is explicitly gated to
-Phase 1+ with owner permission). See [`PROVENANCE.md`](PROVENANCE.md) for the
-documented boundary.
+(those codebases carry unresolved licensing; reuse is gated on recorded owner
+permission — the Phase-1 permission manifest ships empty, so every
+third-party adapter is refused today). See [`PROVENANCE.md`](PROVENANCE.md)
+for the documented boundary.
 
 ## Credits
 
