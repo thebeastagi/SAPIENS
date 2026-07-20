@@ -64,7 +64,9 @@ src/sapiens/
                   human-gated
   cli.py          synthetic-only demo entrypoint
   adapters/       three deterministic synthetic adapters (linear, threshold,
-                  periodic-signal photometry)
+                  periodic-signal photometry) plus the Phase-4 real-data
+                  Kepler photometry adapter (re-derivation of a published
+                  signal; no discovery claimed)
 ```
 
 Key design rules (enforced by tests in [`tests/`](tests/)):
@@ -194,7 +196,7 @@ degenerate), **calibration reports** (catch rate and false-reject rate with
 sample counts), and **calibration-gated confidence aggregation** that
 refuses to emit a number without sufficient calibration data.
 
-**Phase 3 — shipped** (current package version `0.4.0`): structured **L3
+**Phase 3 — shipped** (package version `0.4.0`): structured **L3
 review panels** — four role-specialized deterministic reviewers
 (statistician, domain theorist, methodologist, devil's advocate), a bounded
 multi-round protocol with objection lifecycle tracking (raised / sustained
@@ -204,14 +206,25 @@ in the ledger as review evidence, and **catch-rate scoring** over the
 seeded fixture suite (panel catches 3/3 known-bad, 0 false rejects — exact
 for this suite, not an estimate).
 
-Next, in order (see [`ROADMAP.md`](ROADMAP.md)):
+**Phase 4 — shipped** (current package version `0.5.0`): the first
+**real-data adapter** — `KeplerPhotometryAdapter` (CORE trust tier)
+re-derives the **already published** Kepler-10 b transit signal from a
+bundled, checksum-pinned public NASA/MAST Q1 light curve and climbs it
+L0→L3 through the full stack (trust registry → validation gates → review
+panel), with L4 still human-gated. Negative controls included: flat curves
+propose nothing, tampered curves refuse to load, shifted-period curves fail
+replication honestly. **This is a validation of a published result, not a
+discovery.** Clean-room: zero ASTRA-family code; the permission manifest
+stays empty, so ASTRA/GEODISC/BIODISC/SLATE adapters remain gated.
+
+Next (see [`ROADMAP.md`](ROADMAP.md)):
 
 1. ~~**Phase 1** — legal/licence gate and adapter hardening~~ **shipped**.
 2. ~~**Phase 2** — validation framework v1~~ **shipped**.
 3. ~~**Phase 3** — structured L3 review panels~~ **shipped**.
-4. **Phase 4** — **real domain adapters** — first a clean-room Kepler
-   photometry adapter on public NASA/MAST data; ASTRA / GEODISC / BIODISC /
-   SLATE adapters only after licence and owner review.
+4. ~~**Phase 4** — real domain adapters (clean-room Kepler photometry)~~
+   **shipped**. ASTRA / GEODISC / BIODISC / SLATE adapters remain gated on
+   licence and owner review.
 5. **Phase 5** — external-review workflows with human L4 gates and
    reproduction bundles.
 
