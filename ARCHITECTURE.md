@@ -1,4 +1,4 @@
-# SAPIENS Architecture (Phases 0–3)
+# SAPIENS Architecture (Phases 0–4)
 
 ## Design goals
 
@@ -32,7 +32,9 @@ src/sapiens/
   queue.py        bounded SQLite job queue with leases/idempotency
   daemon.py       bounded background worker skeleton
   cli.py          synthetic-only demo
-  adapters/       two deterministic synthetic adapters
+  adapters/       synthetic adapters + Phase-4 real-data Kepler adapter
+                  (published-signal re-derivation; validators sandboxed
+                  behind the adapter contract)
 ```
 
 Dependency rule: `sapiens` core modules do not import `sapiens.adapters`; tests enforce this. Adapters import core contracts.
@@ -59,6 +61,10 @@ Hash chaining detects tampering but does **not** prove authorship, scientific tr
 ## Validation gates (Phase 2)
 
 `DiscoveryKernel(validation=ValidationGates(...))` opts into automated L1/L2 gates. L1 runs statistical sanity checks over a candidate's internal evidence (determinism across identical reruns, degenerate constant scores, score presence). L2 requires a declared `HoldoutProtocol` for the domain and enforces holdout discipline: replication evidence must come from declared holdout datasets, dataset collisions and (dataset, seed) reuse across the boundary are leakage and reject the gate, and a minimum pass fraction applies. Gate verdicts are appended to `kernel.gate_log` (inspectable, recomputable) — the kernel never fabricates gate outcomes as ledger evidence. Gates are pure functions in `sapiens.validation`; `sapiens.fixtures` ships a labelled seeded-bias suite; `sapiens.calibration` scores gates against it; `sapiens.confidence` refuses to aggregate confidence without the resulting report.
+
+## Real domain adapters (Phase 4)
+
+`KeplerPhotometryAdapter` is the first non-synthetic adapter: first-party clean-room code over a bundled, checksum-pinned public NASA/MAST Kepler Q1 light curve (CORE trust tier, no permission entry needed, in-process). Its validators are staged behind the contract: internal = fold SNR on the full curve; replication = independent time-halves must each re-detect at the same period; review = adversarial odd/even, secondary-eclipse and harmonic checks. All transit arithmetic lives in `adapters/_transit.py`; the kernel sees only evidence. The adapter re-derives a published signal as validation — it claims no discovery — and ships negative controls (flat, tampered, shifted-period curves). A declared `kepler_holdout_protocol()` wires it into the Phase-2 gates, and the reference panel reviews it in Phase-3 integration tests.
 
 ## L3 review panels (Phase 3)
 

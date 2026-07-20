@@ -74,13 +74,28 @@ Structured L3 review panels:
   approval, and the verdict is recorded in the ledger as review evidence
   (no side channel). Without a panel, Phase-2 behaviour is unchanged.
 
-## Phase 4 — real domain adapters
+## Phase 4 — shipped (package version 0.5.0)
 
-- First: one clean-room Kepler photometry adapter on public NASA/MAST data
-  (reuses this repository's own Apache-2.0 demo pipeline path).
+Real domain adapters:
+
+- ~~First: one clean-room Kepler photometry adapter~~ Shipped:
+  `sapiens.adapters.kepler.KeplerPhotometryAdapter` (CORE trust tier)
+  re-derives the **published** Kepler-10 b signal from a bundled public
+  NASA/MAST Q1 light curve (checksum-pinned, provenance in
+  `src/sapiens/adapters/data/README.md`). Framed everywhere as validation
+  of a published result, never a discovery. The pipeline is this
+  repository's own Apache-2.0 demo code path (`adapters/_transit.py`);
+  **zero ASTRA-family code** (the permission manifest remains empty).
 - ASTRA/GEODISC/BIODISC/SLATE adapters only after licence and owner review.
-- Domain-specific validators remain sandboxed behind adapters.
-- Cross-domain method transfer enters target domain at L0 every time.
+  (Unchanged; still gated.)
+- ~~Domain-specific validators remain sandboxed behind adapters~~ Shipped:
+  BLS search, detrending, fold measurement and adversarial checks live
+  inside the adapter; the kernel sees only contract evidence.
+- ~~Cross-domain method transfer enters target domain at L0 every time~~
+  Re-verified against the real adapter (bridge test).
+- Negative controls: flat curves propose nothing; tampered curves refuse to
+  load (pinned checksum); shifted-period curves fail replication with the
+  disagreement shown in evidence details.
 
 ## Phase 5 — external-review workflows
 

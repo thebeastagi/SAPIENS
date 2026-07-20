@@ -57,6 +57,7 @@ GitHub Actions runs Python 3.10, 3.11, and 3.12 with:
 - Reference reviewers: each catches its designed fixture class; clean per-role attribution.
 - Catch-rate harness: panel 3/3 known-bad, 0 false rejects on the seeded suite (regression thresholds).
 - Kernel panel gate: approval path recorded end-to-end in the ledger; rejection blocks L3 with verdict on record; repeated attempts do not collide.
+- Kepler adapter: published-period re-derivation within tolerance; staged validators pass on real data; flat/shifted/tampered negative controls; CORE tier enforcement; L0 transfer reset re-verified; L4 refusal verified on the real candidate.
 
 ## Known limits
 
@@ -65,6 +66,7 @@ GitHub Actions runs Python 3.10, 3.11, and 3.12 with:
 - HMAC checkpoint signatures are symmetric: key possession, not third-party authorship.
 - Confidence values are documented heuristics (raw pass fraction × demonstrated catch rate), not probability estimates; fixture suites are small and rates are exact only for the fixtures included.
 - Reference reviewers are deterministic heuristics, not domain experts; panel approval is procedural evidence, not peer review by scientists. Catch rates are exact for the seeded suite only.
+- The Kepler adapter re-derives one known signal from one public quarter of data. An L3 climb here validates pipeline plumbing against an answer key; it is not evidence of discovery capability, and no discovery is claimed.
 - The daemon is cooperative and in-process for SYNTHETIC/CORE tiers; UNTRUSTED adapters run via subprocess isolation.
 - Synthetic adapters are toy harnesses, not scientific models.
 - L3 is represented as a bounded `review` evidence gate; full multi-agent review panels are roadmap.
