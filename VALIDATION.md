@@ -53,6 +53,10 @@ GitHub Actions runs Python 3.10, 3.11, and 3.12 with:
 - L2 gate: holdout discipline, dataset-collision and (dataset, seed) leakage rejection, pass-fraction threshold.
 - Calibration: fixture labels verified against gate behaviour; report rates match ground truth.
 - Confidence: refuses without calibration / with thin calibration / without evidence.
+- Panels: schema coherence (objections only on OBJECT), multi-round lifecycle (raise/sustain/withdraw/escalate), disagreement gates, budget bounds.
+- Reference reviewers: each catches its designed fixture class; clean per-role attribution.
+- Catch-rate harness: panel 3/3 known-bad, 0 false rejects on the seeded suite (regression thresholds).
+- Kernel panel gate: approval path recorded end-to-end in the ledger; rejection blocks L3 with verdict on record; repeated attempts do not collide.
 
 ## Known limits
 
@@ -60,6 +64,7 @@ GitHub Actions runs Python 3.10, 3.11, and 3.12 with:
 - rlimits bound resource use but are not a full security sandbox; third-party code additionally requires a recorded owner permission.
 - HMAC checkpoint signatures are symmetric: key possession, not third-party authorship.
 - Confidence values are documented heuristics (raw pass fraction × demonstrated catch rate), not probability estimates; fixture suites are small and rates are exact only for the fixtures included.
+- Reference reviewers are deterministic heuristics, not domain experts; panel approval is procedural evidence, not peer review by scientists. Catch rates are exact for the seeded suite only.
 - The daemon is cooperative and in-process for SYNTHETIC/CORE tiers; UNTRUSTED adapters run via subprocess isolation.
 - Synthetic adapters are toy harnesses, not scientific models.
 - L3 is represented as a bounded `review` evidence gate; full multi-agent review panels are roadmap.

@@ -8,6 +8,7 @@ from .isolation import run_validate_isolated
 from .ledger import EvidenceLedger
 from .models import Candidate, Evidence, EvidenceLevel
 from .registry import AdapterRegistry, TrustTier
+from .review import PanelReport, ReviewPanel
 from .validation import GateVerdict, ValidationGates
 
 _STAGE_BY_LEVEL = {
@@ -23,11 +24,14 @@ class DiscoveryKernel:
         ledger: EvidenceLedger,
         registry: AdapterRegistry | None = None,
         validation: ValidationGates | None = None,
+        panel: ReviewPanel | None = None,
     ) -> None:
         self.ledger = ledger
         self.registry = registry if registry is not None else AdapterRegistry()
         self.validation = validation
+        self.panel = panel
         self.gate_log: list[GateVerdict] = []
+        self.panel_log: list[PanelReport] = []
 
     def register(self, candidate: Candidate, *, transferred_from: str | None = None) -> None:
         self.ledger.record_candidate(candidate.candidate_id, transferred_from=transferred_from)
@@ -67,8 +71,43 @@ class DiscoveryKernel:
             return current
         if not self._passes_validation_gates(candidate, target):
             return current
+        if target == EvidenceLevel.L3 and self.panel is not None:
+            panel_evidence_id = self._convene_panel(candidate, seed=seed)
+            if panel_evidence_id is None:
+                return current  # panel rejected; verdict already on the ledger
+            refs.append(panel_evidence_id)
         self.ledger.promote(candidate.candidate_id, target, tuple(refs))
         return target
+
+    def _convene_panel(self, candidate: Candidate, *, seed: int) -> str | None:
+        """Convene the L3 panel and record its verdict as review evidence.
+
+        Returns the panel evidence id on approval, None on rejection. The
+        verdict is ledger-recorded either way — no side channels.
+        """
+        from .review import PanelOutcome
+
+        recorded = self._evidence_for(candidate.candidate_id)
+        report = self.panel.convene(candidate, recorded, seed=seed)  # type: ignore[union-attr]
+        self.panel_log.append(report)
+        approved = report.outcome == PanelOutcome.APPROVED
+        # Unique per attempt: an identical re-convened report must not collide
+        # with the previously recorded panel verdict (ledger forbids id reuse).
+        evidence_id = f"panel-{report.report_id}-e{len(self.ledger.events())}"
+        self.ledger.record_evidence(
+            Evidence(
+                evidence_id,
+                candidate.candidate_id,
+                "review",
+                approved,
+                "review-panel-v1",
+                "panel-transcript",
+                seed,
+                None,
+                {"report": report.to_dict()},
+            )
+        )
+        return evidence_id if approved else None
 
     def _evidence_for(self, candidate_id: str) -> tuple[Evidence, ...]:
         items: list[Evidence] = []

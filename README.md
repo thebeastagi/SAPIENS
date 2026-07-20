@@ -50,6 +50,9 @@ src/sapiens/
   fixtures.py     seeded-bias fixture suite (labelled ground truth)
   calibration.py  gate-performance calibration reports
   confidence.py   calibration-gated confidence aggregation (refuses blindly)
+  review.py       L3 panel protocol: roles, objections, multi-round gate
+  reviewers.py    deterministic reference reviewers (four roles)
+  catchrate.py    panel catch-rate scoring over the seeded fixtures
   ledger.py       JSONL hash-chained evidence ledger, L0→L4 transition guard
   kernel.py       domain-neutral DiscoveryKernel; owns all promotions
   bridge.py       cross-domain structure transfer — ALWAYS resets target to L0
@@ -182,7 +185,7 @@ address-space / open-files plus wall-clock timeout, fail-closed), and
 (key from the environment only, never stored). No real-data adapter ships in
 Phase 1; tiers are exercised by synthetic adapters and test doubles.
 
-**Phase 2 — shipped** (current package version `0.3.0`): automated L0→L2
+**Phase 2 — shipped** (package version `0.3.0`): automated L0→L2
 **validation gates** — L1 statistical sanity checks (determinism,
 degenerate-score rejection) and L2 declared holdout protocols with explicit
 leakage controls (dataset collision, (dataset, seed) reuse) — plus a
@@ -191,12 +194,21 @@ degenerate), **calibration reports** (catch rate and false-reject rate with
 sample counts), and **calibration-gated confidence aggregation** that
 refuses to emit a number without sufficient calibration data.
 
+**Phase 3 — shipped** (current package version `0.4.0`): structured **L3
+review panels** — four role-specialized deterministic reviewers
+(statistician, domain theorist, methodologist, devil's advocate), a bounded
+multi-round protocol with objection lifecycle tracking (raised / sustained
+/ withdrawn) and disagreement gates (sustained MAJOR/BLOCKING objections
+reject; MINOR caveats are recorded but non-fatal), panel verdicts recorded
+in the ledger as review evidence, and **catch-rate scoring** over the
+seeded fixture suite (panel catches 3/3 known-bad, 0 false rejects — exact
+for this suite, not an estimate).
+
 Next, in order (see [`ROADMAP.md`](ROADMAP.md)):
 
 1. ~~**Phase 1** — legal/licence gate and adapter hardening~~ **shipped**.
 2. ~~**Phase 2** — validation framework v1~~ **shipped**.
-3. **Phase 3** — structured L3 review panels (role-specialized reviewers,
-   multi-round objection tracking, catch-rate scoring).
+3. ~~**Phase 3** — structured L3 review panels~~ **shipped**.
 4. **Phase 4** — **real domain adapters** — first a clean-room Kepler
    photometry adapter on public NASA/MAST data; ASTRA / GEODISC / BIODISC /
    SLATE adapters only after licence and owner review.
