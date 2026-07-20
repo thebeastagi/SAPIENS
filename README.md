@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/beast-avatar.png" alt="The Beast" width="160">
+</p>
+
 # SAPIENS
 
 **S**uperintelligent **A**utonomous **P**latform for **I**ntegrated **E**xploration of **N**atural **S**ciences
@@ -8,8 +12,9 @@
 
 SAPIENS is an **experimental platform for traceable cross-domain
 scientific-discovery workflows** — a `DomainAdapter` boundary, a hash-chained
-L0→L4 evidence ledger, and kernel-gated promotions. **Phases 0–1 shipped:
-synthetic adapters only in practice, no discoveries claimed.**
+L0→L4 evidence ledger, and kernel-gated promotions. **Phases 0–4 shipped (v0.5.0): three
+synthetic adapters plus one real-data Kepler photometry adapter that
+re-derives a published signal — no discoveries claimed.**
 
 It provides the plumbing a discovery system needs before it can be trusted:
 a domain-neutral adapter boundary, an append-only hash-chained evidence
@@ -20,13 +25,14 @@ budgets.
 
 > **Read this first — despite the acronym:** SAPIENS is **not** AGI, ASI, or
 > superintelligence, and does not claim to be. It is an experimental research
-> platform. **No scientific discoveries are claimed.** The shipped adapters
-> remain deterministic and **synthetic only**; the included examples discover
-> nothing about nature. The CLI reports `"scientific_discoveries_claimed": 0`
-> by construction, and the test suite enforces the honesty and boundary
-> invariants described below. Phase 1 added the *machinery* for real-domain
-> work (trust tiers, isolation, permissions) — but no real-data adapter
-> ships yet.
+> platform. **No scientific discoveries are claimed.** All shipped adapters
+> are deterministic: three are **synthetic only**, and the Phase-4
+> `KeplerPhotometryAdapter` re-derives the **already published** Kepler-10 b
+> transit signal from a checksum-pinned public NASA/MAST light curve — a
+> validation of a known result, not a discovery. The CLI reports
+> `"scientific_discoveries_claimed": 0` by construction, and the test suite
+> enforces the honesty and boundary invariants described below. L4 promotion
+> remains human-gated.
 
 ## Why
 
