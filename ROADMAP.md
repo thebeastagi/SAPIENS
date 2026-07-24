@@ -102,3 +102,84 @@ Real domain adapters:
 - Human L4 gates.
 - Reproduction bundles.
 - Prediction tracking and demotion on contradicting evidence.
+
+---
+
+# Discovery-Gate Hardening (scout HOW-TO-PROCEED Phases 0–5) — shipped v0.6.0
+
+> **Distinct track, distinct numbering.** The *foundation* phases above (0–4)
+> built the ledger/adapter/review plumbing. This second track hardens the
+> **discovery-decision gates** against gaming and null-model incompleteness,
+> following `beast-scout`'s blind red-team benchmark. It ships as the
+> self-contained, stdlib-only `sapiens.gates` subpackage and changes **no**
+> foundation behaviour. Honesty invariant unchanged:
+> `scientific_discoveries_claimed = 0`.
+
+Status legend: **code-complete** (implemented + tested) · **library-complete**
+(decision-support code done; the surrounding human workflow is process, not
+code) · **synthetic-corpus** (validated on spec-derived synthetic profiles, not
+real datasets — the real measurement is a prospective trial).
+
+### DG-0 — weld the 4 gaming seams — **code-complete**
+- **G-03** anomaly boost is conditioned on *literature-measured surprise*
+  (`gates.surprise`), never mere absence of a mechanism.
+- **G-05** reserved paradigm-breaker slots require `promotion_score >= 0.30`
+  **and** the G-03 surprise condition (`gates.promotion.reserved_slot_eligible`).
+- **G-06** L2-holdout-passed is a *prerequisite* for CALIBRATED; the additive
+  score only ranks *within* the calibrated set (`gates.promotion`,
+  `gates.pipeline` entry gate).
+- **G-07** MAD/σ baseline is computed on the **full dataset** with a robust
+  estimator that consumes every point (`gates.surprise.robust_baseline`).
+- **FP-06** conservation-law guard: a violation ⇒ correct null is measurement
+  error ⇒ no boost/entry without reproducible orthogonal confirmation.
+- **Exit met:** the 7 gaming vectors re-run to **0 leaks** (`gates.criteria.run_gaming_retest`; test `test_phase0_exit_zero_gaming_leaks`).
+
+### DG-1 — mandatory, logged null layer — **code-complete**
+- Every candidate carries a `NullProvenance` record (which null, external data
+  required/fetched y/n, σ-under-null); no null ⇒ **UNCALIBRATED**, never a
+  silent pass (`gates.nulls`).
+- **Family-wide** BH-FDR across the candidate family (`gates.fdr`) — the
+  multiplicity/look-elsewhere control (FP-09/FP-10).
+- **FP-04** "instrument-systematic-not-excluded" is an explicit state that
+  surfaces to the human instead of passing as a clean 6σ.
+
+### DG-2 — decoupled threshold architecture — **code-complete**
+- **ENTRY** = 3σ-equiv AND survives family BH-FDR q<0.05; **RANK** = continuous
+  σ/effect; **CONFIRM** = 5σ (physics) / FDR<0.05 + orthogonal replication (bio)
+  / formal proof-check (math) (`gates.thresholds`, `gates.pipeline`).
+- Boundary fixes: **B-02** adaptive `ci_floor`, **B-03** hash-committed
+  thresholds, **B-05** continuous degree-of-calibration, **B-06** DevilsAdvocate
+  r≥0.90 → permutation test at ~3σ-equiv (`gates.devils_advocate`).
+
+### DG-3 — genuine blind re-run harness — **code-complete (synthetic-corpus)**
+- Strip `ground_truth`/`expected_verdict`/`gates_probed`/`how_*`; expand with
+  ~20 historical positives + fresh decoys; separate-custody key with a
+  published SHA-256 commitment; blind scoring runner + grade
+  (`gates.blind`, `gates.corpus`).
+- *Honest scope:* the positives/decoys are **spec-derived synthetic profiles**,
+  and separate custody is implemented in-process. A real sealed set on real
+  post-cutoff data with a genuine second-party custody ceremony is the
+  next-stage (external) test this unblocks.
+
+### DG-4 — human-in-loop final gate — **library-complete**
+- Per-candidate dossier (σ, FDR-q, null used, external-data y/n, replication
+  status, UNCALIBRATED/instrument flags, and the single strongest
+  **disconfirming** explanation next to the claim); tiered authority
+  (only CONFIRM-tier is autonomous-claim-eligible, human co-sign still required);
+  bounded top-K throttle; override log feeding recalibration (`gates.dossier`,
+  `gates.pipeline` shortlist).
+- *Honest scope:* this is the decision-support **data + eligibility layer**; the
+  reviewer UI/workflow itself is out of repo scope.
+
+### DG-5 — success-criteria suite — **code-complete (synthetic-corpus)**
+- Automated `gates.criteria.run_success_criteria` checks all five ship gates:
+  0 gaming leaks · null layer mandatory+logged (100% of shortlisted) · blind
+  kill-rate ≥ 8/10 + recovery ≥ 8/10 + abstention < 10% · boundary stability
+  ≤ 1 flip/item over 3 seeds · thresholds hash-committed per run. All pass on
+  the synthetic corpus (`test_success_criteria_all_pass`).
+- *Honest scope:* retrospective/synthetic gates are an intuition pump. The
+  **only** real validation is a prospective, pre-registered precision@K /
+  false-positive-rate trial on a post-cutoff stream — stated in the suite output
+  and not faked here.
+
+CLI: `sapiens gates` (full suite) · `sapiens gates --mode gaming` (Phase-0 re-test).

@@ -1,5 +1,6 @@
 """SAPIENS: experimental, traceable scientific-discovery workflow plumbing."""
 
+from . import gates
 from .adapter import DomainAdapter
 from .bridge import TransferEnvelope, transfer
 from .calibration import CalibrationReport, run_calibration
@@ -43,9 +44,10 @@ __all__ = [
     "ValidationGates",
     "aggregate_confidence",
     "fixture_suite",
+    "gates",
     "reference_panel",
     "run_calibration",
     "score_panel",
     "transfer",
 ]
-__version__ = "0.5.0"
+__version__ = "0.6.0"

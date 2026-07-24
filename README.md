@@ -12,9 +12,12 @@
 
 SAPIENS is an **experimental platform for traceable cross-domain
 scientific-discovery workflows** — a `DomainAdapter` boundary, a hash-chained
-L0→L4 evidence ledger, and kernel-gated promotions. **Phases 0–4 shipped (v0.5.0): three
-synthetic adapters plus one real-data Kepler photometry adapter that
-re-derives a published signal — no discoveries claimed.**
+L0→L4 evidence ledger, and kernel-gated promotions. **Foundation phases 0–4
+shipped: three synthetic adapters plus one real-data Kepler photometry adapter
+that re-derives a published signal. v0.6.0 adds the `sapiens.gates`
+discovery-gate-hardening track (anti-gaming seams, a mandatory logged null
+layer, decoupled thresholds, a blind re-run harness, and a human-gate dossier
+layer). No discoveries claimed.**
 
 It provides the plumbing a discovery system needs before it can be trusted:
 a domain-neutral adapter boundary, an append-only hash-chained evidence
@@ -68,11 +71,17 @@ src/sapiens/
   discovery.py    autonomous discovery driver — proposes candidates and
                   climbs them L0→L3 under budgets via the daemon; L4 stays
                   human-gated
-  cli.py          synthetic-only demo entrypoint
+  cli.py          synthetic-only demo entrypoint (+ `gates` subcommand)
   adapters/       three deterministic synthetic adapters (linear, threshold,
                   periodic-signal photometry) plus the Phase-4 real-data
                   Kepler photometry adapter (re-derivation of a published
                   signal; no discovery claimed)
+  gates/          discovery-gate hardening (scout Phases 0–5), stdlib-only:
+                  anti-gaming seams (G-03/05/06/07 + FP-06 guard), a mandatory
+                  logged null layer + family-wide BH-FDR, decoupled
+                  ENTRY/RANK/CONFIRM thresholds, a blind re-run harness, a
+                  human-gate dossier layer, and an automated success-criteria
+                  suite — self-contained, imports no adapters, claims nothing
 ```
 
 Key design rules (enforced by tests in [`tests/`](tests/)):
@@ -97,6 +106,12 @@ Key design rules (enforced by tests in [`tests/`](tests/)):
   every time.
 - **Bounded autonomy** — background work runs through a bounded SQLite queue
   with leases, cooperative budgets, and preemption; no unbounded loops.
+- **Gate-hardening is clean-room too** — `sapiens.gates` implements the
+  discovery-decision hardening (anti-gaming + null layer + decoupled thresholds
+  + blind harness + human-gate dossier) from spec only; a test enforces it
+  imports no adapters and copies no ASTRA-family code. Run it with
+  `sapiens gates` (full success-criteria suite) or `sapiens gates --mode gaming`
+  (the Phase-0 gaming re-test, which reports **0 leaks**).
 
 Full details: [`ARCHITECTURE.md`](ARCHITECTURE.md) ·
 [`VALIDATION.md`](VALIDATION.md) · [`PROVENANCE.md`](PROVENANCE.md) ·
