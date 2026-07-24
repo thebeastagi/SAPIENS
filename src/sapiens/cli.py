@@ -109,6 +109,27 @@ def run_discovery(
     }
 
 
+def run_gates(*, mode: str = "criteria") -> dict[str, object]:
+    """Run the discovery-gate-hardening checks (scout Phases 0-5).
+
+    ``mode="criteria"`` runs the full Phase-5 success-criteria suite;
+    ``mode="gaming"`` runs only the Phase-0 gaming re-test. Neither claims a
+    discovery — this is evidence-hygiene plumbing.
+    """
+    from .gates.criteria import run_gaming_retest, run_success_criteria
+
+    if mode == "gaming":
+        retest = run_gaming_retest()
+        return {
+            "experimental": True,
+            "scientific_discoveries_claimed": 0,
+            "gaming_vectors_checked": retest.checked,
+            "gaming_leaks": list(retest.leaks),
+            "clean": retest.clean,
+        }
+    return run_success_criteria().to_dict()
+
+
 @contextmanager
 def _workdir(path: Path | None):
     if path is not None:
@@ -134,9 +155,18 @@ def main() -> None:
     discover_parser.add_argument("--steps-per-job", type=int, default=20)
     discover_parser.add_argument("--limit-per-adapter", type=int, default=2)
 
+    gates_parser = sub.add_parser(
+        "gates", help="run discovery-gate-hardening checks (scout Phases 0-5)"
+    )
+    gates_parser.add_argument(
+        "--mode", choices=["criteria", "gaming"], default="criteria"
+    )
+
     args = parser.parse_args()
 
-    if args.command == "discover":
+    if args.command == "gates":
+        result = run_gates(mode=args.mode)
+    elif args.command == "discover":
         with _workdir(args.workdir) as workdir:
             result = run_discovery(
                 workdir,

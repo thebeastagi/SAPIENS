@@ -31,13 +31,25 @@ src/sapiens/
   budget.py       cooperative step/time budgets and preemption exceptions
   queue.py        bounded SQLite job queue with leases/idempotency
   daemon.py       bounded background worker skeleton
-  cli.py          synthetic-only demo
+  cli.py          synthetic-only demo + `gates` subcommand
   adapters/       synthetic adapters + Phase-4 real-data Kepler adapter
                   (published-signal re-derivation; validators sandboxed
                   behind the adapter contract)
+  gates/          discovery-gate hardening (scout Phases 0–5), stdlib-only:
+    surprise.py     G-03 literature-measured surprise + G-07 robust full-set baseline
+    nulls.py        Phase-1 mandatory null-provenance records (+FP-04 state)
+    fdr.py          family-wide Benjamini-Hochberg + sigma<->p conversions
+    thresholds.py   decoupled ENTRY/RANK/CONFIRM + B-02/B-03/B-05 fixes
+    devils_advocate.py  B-06 permutation test on the confound-independence null
+    promotion.py    recalibrated promotion_score + anomaly_priority (G-05/G-06/FP-06)
+    pipeline.py     per-family orchestration -> GateOutcome + bounded shortlist
+    corpus.py       gaming vectors + ~20 historical positives + decoys
+    blind.py        Phase-3 blind re-run harness (strip/expand/custody/grade)
+    dossier.py      Phase-4 referee dossier, tiered authority, override log
+    criteria.py     Phase-5 automated success-criteria suite
 ```
 
-Dependency rule: `sapiens` core modules do not import `sapiens.adapters`; tests enforce this. Adapters import core contracts.
+Dependency rule: `sapiens` core modules and `sapiens.gates` do not import `sapiens.adapters`; tests enforce this. Adapters import core contracts. The `gates` subpackage is self-contained (stdlib only) and copies no ASTRA/GEODISC/BIODISC/SLATE code — a test enforces the clean-room invariant on it too.
 
 ## DomainAdapter contract
 
@@ -77,5 +89,36 @@ Hash chaining detects tampering but does **not** prove authorship, scientific tr
 ## Background daemon skeleton
 
 `WorkQueue` gives bounded jobs, serialized payload-size limits, idempotency keys, leases, stale-lease rejection, and retry/dead states. `DiscoveryDaemon.run_bounded` executes only explicitly registered handlers under time/step budgets; it does not dynamically import or shell out from queue payloads.
+
+## Discovery-gate hardening (`sapiens.gates`, scout Phases 0–5)
+
+A separate, stdlib-only subpackage that hardens the *discovery-decision* gates
+against gaming and null-model incompleteness. It does not touch the L0→L4
+foundation; it consumes a domain-neutral `GateInputs` (adapters translate their
+measurements into it) and returns a `GateOutcome`/`FamilyResult`.
+
+Data flow for a candidate family: `evaluate_family` builds a family-wide
+Benjamini-Hochberg p-value set from each candidate's **null-provenance**
+σ (`nulls.NullProvenance`, only counted when the null is *calibratable* — data
+fetched and no un-excluded instrument systematic); computes `promotion_score`
+(recalibrated weights, never penalising mechanism-absence) and
+`anomaly_priority` (mechanism-absence boost gated by **literature-measured
+surprise**, G-03, and the **conservation-law guard**, FP-06); then applies the
+decoupled thresholds — **ENTRY** = 3σ-equiv AND family-FDR survival AND a
+calibratable null (so an UNCALIBRATED candidate is *surfaced, never admitted*,
+G-06); **RANK** = continuous `promotion + anomaly`; **CONFIRM** = domain-specific
+claim bar. Reserved paradigm-breaker slots (`reserved_slot_eligible`, G-05:
+`promotion_score ≥ 0.30` + surprise + the UNEXPLAINED_CONFIRMED signature) get
+guaranteed representation in a bounded top-K shortlist.
+
+The G-07 baseline receipt (`surprise.robust_baseline`) computes median/MAD-σ over
+**every** point and records the count, so a "clean-subset" gamed baseline is
+structurally impossible through the API. `criteria.run_success_criteria` runs the
+five Phase-5 ship gates; `blind` provides the sealed, separate-custody re-run
+harness; `dossier` builds the human referee bundle (with the strongest
+disconfirming explanation forced next to each claim) and enforces that only
+CONFIRM-tier candidates are autonomous-claim-eligible. Everything is a pure
+function or frozen dataclass; nothing here claims a discovery
+(`scientific_discoveries_claimed = 0` remains true by construction).
 
 Synthetic and CORE (first-party, real-data) adapters run in-process with cooperative preemption. UNTRUSTED (third-party) adapters run only via `sapiens.isolation`: a child process applies POSIX rlimits (CPU, address space, open files) to itself, the parent enforces a wall-clock timeout, and every failure mode is contained fail-closed (no evidence on failure). Third-party adapters additionally require a recorded owner permission (`permissions.json`, empty by default) before the registry will validate them at all. rlimits bound resources; they are not a full security sandbox.
